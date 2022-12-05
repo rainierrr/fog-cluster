@@ -1,2 +1,2 @@
 .env
-vpn_setup.sh
+setup_tailscale.sh
