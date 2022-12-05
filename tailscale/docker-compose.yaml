@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+  vpn:
+    hostname: lab-node
+    container_name: tailscale
+    image: tailscale/tailscale:latest
+    env_file: .env
+    network_mode: "host"
+    tty: true
+    volumes:
+      - "/dev/net/tun:/dev/net/tun"
+    ports:
+      - "41641:41641"
+      - "3478:3478"
+      - "443:443"
+    cap_add:
+      - net_admin
+      - sys_module
+    #restart: unless-stopped
+
