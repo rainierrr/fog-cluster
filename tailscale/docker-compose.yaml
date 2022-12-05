@@ -4,7 +4,6 @@ services:
     hostname: lab-node
     container_name: tailscale
     image: tailscale/tailscale:latest
-    env_file: .env
     network_mode: "host"
     tty: true
     volumes:
