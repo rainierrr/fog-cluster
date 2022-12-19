@@ -1,0 +1,11 @@
+services:
+  fog-app:
+    container_name: fog-app
+    build:
+      context: ./fog-app
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./fog-app:/go/src
+
