@@ -2,8 +2,7 @@ FROM golang:1.19-alpine
 
 WORKDIR /go/src
 
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum ./
 RUN apk upgrade --update && \
     apk --no-cache add git
 
