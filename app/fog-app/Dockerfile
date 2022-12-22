@@ -20,6 +20,6 @@ RUN apk upgrade --update
 COPY --from=builder /go/src/main .
 
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD [ "/go/src/main" ]
