@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
 - fog-app/deployment.yaml
 - fog-app/service.yaml
+- fog-app/load-balancer.yaml
 - nginx/deployment.yaml
 - nginx/service.yaml
