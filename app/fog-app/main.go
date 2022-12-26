@@ -19,7 +19,10 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/", func(ctx *gin.Context) {
-		ctx.String(200, "Hello World!")
+		ctx.JSON(http.StatusOK, gin.H{"message": "OK"})
+	})
+	router.GET("/local", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{"message": "This is local server"})
 	})
 
 	router.POST("/post", func(ctx *gin.Context) {
