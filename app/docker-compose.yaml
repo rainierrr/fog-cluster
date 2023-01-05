@@ -1,4 +1,33 @@
 services:
+  mg-app:
+    container_name: mg-app
+    build:
+      context: ./mg-app
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3030:3000"
+    volumes:
+      - ./mg-app:/go/src
+      - ./db/initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: mg-app
+      MYSQL_USER: mg-app
+      MYSQL_PASSWORD: mg-app
+      MYSQL_HOST: db
+    depends_on:
+      - db
+  db:
+    container_name: db
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mg-app
+      MYSQL_USER: mg-app
+      MYSQL_PASSWORD: mg-app
+    volumes:
+      - db-store:/var/lib/mysql
   fog-app:
     container_name: fog-app
     build:
@@ -8,4 +37,5 @@ services:
       - "3000:3000"
     volumes:
       - ./fog-app:/go/src
-
+volumes:
+  db-store:

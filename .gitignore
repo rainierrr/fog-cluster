@@ -1,6 +1,8 @@
 .env
 setup_tailscale.sh
 .envrc
+.vscode
 
 # go app
 tmp
+init-db.sh
