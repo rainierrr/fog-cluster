@@ -1,18 +1,18 @@
 services:
-  mg-app:
-    container_name: mg-app
+  super-app:
+    container_name: super-app
     build:
-      context: ./mg-app
+      context: ./super-app
       dockerfile: Dockerfile.dev
     ports:
       - "3030:3000"
     volumes:
-      - ./mg-app:/go/src
+      - ./super-app:/go/src
       - ./db/initdb.d:/docker-entrypoint-initdb.d
     environment:
-      MYSQL_DATABASE: mg-app
-      MYSQL_USER: mg-app
-      MYSQL_PASSWORD: mg-app
+      MYSQL_DATABASE: super-app
+      MYSQL_USER: super-app
+      MYSQL_PASSWORD: super-app
       MYSQL_HOST: db
     depends_on:
       - db
@@ -23,11 +23,9 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mg-app
-      MYSQL_USER: mg-app
-      MYSQL_PASSWORD: mg-app
-    volumes:
-      - db-store:/var/lib/mysql
+      MYSQL_DATABASE: super-app
+      MYSQL_USER: super-app
+      MYSQL_PASSWORD: super-app
   fog-app:
     container_name: fog-app
     build:

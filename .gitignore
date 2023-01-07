@@ -6,3 +6,4 @@ setup_tailscale.sh
 # go app
 tmp
 init-db.sh
+app/scripts/*.json
