@@ -5,7 +5,7 @@ services:
       context: ./super-app
       dockerfile: Dockerfile.dev
     ports:
-      - "3030:3000"
+      - "3000:3000"
     volumes:
       - ./super-app:/go/src
       - ./db/initdb.d:/docker-entrypoint-initdb.d
@@ -26,13 +26,22 @@ services:
       MYSQL_DATABASE: super-app
       MYSQL_USER: super-app
       MYSQL_PASSWORD: super-app
+  mg-app:
+    container_name: mg-app
+    build:
+      context: ./mg-app
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./mg-app:/go/src
   fog-app:
     container_name: fog-app
     build:
       context: ./fog-app
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "3002:3000"
     volumes:
       - ./fog-app:/go/src
 volumes:
