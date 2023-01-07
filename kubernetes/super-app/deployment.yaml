@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: super-app-deployment
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: super-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: super-app
+    spec:
+      containers:
+      - name: super-app
+        image: public.ecr.aws/f9w6d5a2/super-app:latest
+        ports:
+        - containerPort: 3000

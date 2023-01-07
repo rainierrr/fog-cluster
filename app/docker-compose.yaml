@@ -35,6 +35,10 @@ services:
       - "3001:3000"
     volumes:
       - ./mg-app:/go/src
+      - $HOME/.kube/k3s-cluster-a.yaml:/go/src/k3s.yaml
+      #- $HOME/.kube//.kube/k3s-cluster-b.yaml:/go/src/k3s.yaml
+    environment:
+      - ENV=local
   fog-app:
     container_name: fog-app
     build:

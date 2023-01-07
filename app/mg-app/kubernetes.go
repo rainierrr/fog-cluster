@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
 )
@@ -61,10 +63,15 @@ func getClusterUsageRate(clientset *kubernetes.Clientset, mc *metrics.Clientset)
 }
 
 func setupK8sClient() (*kubernetes.Clientset, *metrics.Clientset, error) {
-	kubeconfig := "./k3s.yaml"
+	var config *rest.Config
+	var err error
+	if os.Getenv("ENV") == "local" {
+		kubeconfig := "./k3s.yaml"
+		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
+	} else {
+		config, err = rest.InClusterConfig()
+	}
 
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, nil, err
 	}

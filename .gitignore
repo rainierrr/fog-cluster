@@ -7,3 +7,4 @@ setup_tailscale.sh
 tmp
 init-db.sh
 app/scripts/*.json
+app/mg-app/k3s.yaml

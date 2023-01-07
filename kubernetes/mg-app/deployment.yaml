@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mg-app-deployment
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: mg-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mg-app
+    spec:
+      serviceAccountName: mg-app-sa
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: In
+                values:
+                - 'true'
+      containers:
+      - name: mg-app
+        image: public.ecr.aws/f9w6d5a2/mg-app@sha256:a2f64ae08a04880ce1e68ab65f98935a44e62dd5e7f34b71f480e889554baacf
+        ports:
+        - containerPort: 3000

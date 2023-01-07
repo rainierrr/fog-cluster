@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main /go/src/main.go
+RUN go build -o main /go/src/*.go
 
 ####################### Run stage #######################
 FROM alpine:3.17
