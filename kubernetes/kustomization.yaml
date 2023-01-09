@@ -2,9 +2,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 # super-app
-- super-app/load-balancer.yaml
-- super-app/node-port.yaml
-- super-app/deployment.yaml
+# - super-app/load-balancer.yaml
+# - super-app/node-port.yaml
+# - super-app/deployment.yaml
 
 # mg-app
 - mg-app/node-port.yaml
