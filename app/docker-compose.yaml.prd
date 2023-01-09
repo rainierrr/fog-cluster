@@ -25,27 +25,5 @@ services:
       MYSQL_DATABASE: super-app
       MYSQL_USER: super-app
       MYSQL_PASSWORD: super-app
-  mg-app:
-    container_name: mg-app
-    build:
-      context: ./mg-app
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3001:3000"
-    volumes:
-      - ./mg-app:/go/src
-      - $HOME/.kube/k3s-cluster-a.yaml:/go/src/k3s.yaml
-      #- $HOME/.kube//.kube/k3s-cluster-b.yaml:/go/src/k3s.yaml
-    environment:
-      - ENV=local
-  fog-app:
-    container_name: fog-app
-    build:
-      context: ./fog-app
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3002:3000"
-    volumes:
-      - ./fog-app:/go/src
 volumes:
   db-store:
