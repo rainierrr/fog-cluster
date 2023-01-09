@@ -3,21 +3,20 @@ kind: Kustomization
 resources:
 # super-app
 - super-app/load-balancer.yaml
-- super-app/service.yaml
+- super-app/node-port.yaml
 - super-app/deployment.yaml
 
 # mg-app
-- mg-app/load-balancer.yaml
-- mg-app/service.yaml
+- mg-app/node-port.yaml
 - mg-app/deployment.yaml
 - mg-app/service-account.yaml
 - mg-app/role.yaml
 - mg-app/role-binding.yaml
 # fog-app
-- fog-app/service.yaml
+- fog-app/node-port.yaml
 - fog-app/deployment.yaml
-- fog-app/load-balancer.yaml
+
 
 # nginx for debugging
-# - nginx/service.yaml
+# - nginx/node-port.yaml
 # - nginx/deployment.yaml
