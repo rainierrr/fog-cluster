@@ -9,3 +9,7 @@ init-db.sh
 app/scripts/*.json
 app/mg-app/k3s.yaml
 app/mg-app/client-go
+
+
+# python
+__pycache__

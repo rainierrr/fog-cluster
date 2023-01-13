@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  master:
+    build: .
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./src:/src
+    command: -f /src/locustfile.py --master
+  worker:
+    build: .
+    volumes:
+      - ./src:/src
+    command: -f /src/locustfile.py --worker --master-host master
