@@ -13,7 +13,7 @@ resources:
 - mg-app/role.yaml
 - mg-app/role-binding.yaml
 # fog-app
-- fog-app/node-port.yaml
+# - fog-app/node-port.yaml
 - fog-app/deployment.yaml
 - fog-app/load-balancer.yaml
 
