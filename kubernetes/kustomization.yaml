@@ -15,7 +15,7 @@ resources:
 # fog-app
 - fog-app/node-port.yaml
 - fog-app/deployment.yaml
-
+- fog-app/load-balancer.yaml
 
 # nginx for debugging
 # - nginx/node-port.yaml

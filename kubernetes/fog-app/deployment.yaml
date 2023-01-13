@@ -7,12 +7,19 @@ spec:
   selector:
     matchLabels:
       app: fog-app
-  replicas: 2
+  replicas: 4
   template:
     metadata:
       labels:
         app: fog-app
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: DoesNotExist
       containers:
       - name: fog-app
         image: public.ecr.aws/f9w6d5a2/fog-app:latest

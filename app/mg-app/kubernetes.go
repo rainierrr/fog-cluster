@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -32,31 +33,45 @@ func getClusterUsageRate(clientset *kubernetes.Clientset, mc *metrics.Clientset)
 	if len(nodeMetricses.Items) != len(node.Items) {
 		return nil, errors.New("nodeMetricses.Items and node.Items are not equal")
 	}
-	cluster_cpu_allocatable := float64(0)
-	cluster_mem_allocatable := float64(0)
-	cluster_mem_used := float64(0)
-	cluster_cpu_used := float64(0)
+
+	clusterCpuAllocatable := float64(0)
+	clusterMemAllocatable := float64(0)
+	clusterCpuUsed := float64(0)
+	clusterMemUsed := float64(0)
+
+	if len(nodeMetricses.Items) == 0 {
+		return nil, errors.New("nodeMetricses.Items is empty")
+	}
 
 	for i := 0; i < len(nodeMetricses.Items); i++ {
-		cpu_usage := float64(nodeMetricses.Items[i].Usage.Cpu().MilliValue())
-		mem_usage := float64(nodeMetricses.Items[i].Usage.Memory().Value())
-		cpu_allocatable := float64(node.Items[i].Status.Allocatable.Cpu().MilliValue())
-		mem_allocatable := float64(node.Items[i].Status.Allocatable.Memory().Value())
+		// master nodeは除外
+		masterFlag := node.Items[i].Labels["node-role.kubernetes.io/control-plane"]
+		if masterFlag == "true" {
+			continue
+		}
+		cpuUsage := float64(nodeMetricses.Items[i].Usage.Cpu().MilliValue())
+		memUsage := float64(nodeMetricses.Items[i].Usage.Memory().MilliValue())
+		cpuAllocatable := float64(node.Items[i].Status.Allocatable.Cpu().MilliValue())
+		memAllocatable := float64(node.Items[i].Status.Allocatable.Memory().MilliValue())
 
-		cluster_cpu_allocatable += cpu_allocatable
-		cluster_mem_allocatable += mem_allocatable
-		cluster_cpu_used += cpu_usage
-		cluster_mem_used += mem_usage
+		clusterCpuAllocatable += cpuAllocatable
+		clusterMemAllocatable += memAllocatable
+		clusterCpuUsed += cpuUsage
+		clusterMemUsed += memUsage
 
-		// デバック用
-		// fmt.Printf("Node name: %s\n", node.Items[i].Name)
-		// fmt.Printf("CPU rate: %f\n", cpu_usage/cpu_allocatable)
-		// fmt.Printf("Memory rate: %f\n", mem_usage/mem_allocatable)
+		//デバック用
+		fmt.Printf("Node name: %s\n", node.Items[i].Name)
+		fmt.Printf("CPU rate: %f\n", cpuUsage/cpuAllocatable)
+		fmt.Printf("Memory rate: %f\n", memUsage/memAllocatable)
+		fmt.Printf("cpuUsage: %d\n", nodeMetricses.Items[i].Usage.Cpu().MilliValue())
+		memUsage2 := node.Items[i].Status.Capacity.Memory().MilliValue()
+		fmt.Printf("memUsage: %d\n", memUsage2)
+		fmt.Println("--------------------------------------------------")
 	}
 
 	clusterUsageRate := ClusterUsageRate{
-		CPU:    cluster_cpu_used / cluster_cpu_allocatable,
-		Memory: cluster_mem_used / cluster_mem_allocatable,
+		CPU:    clusterCpuUsed / clusterCpuAllocatable,
+		Memory: clusterMemUsed / clusterMemAllocatable,
 	}
 
 	return &clusterUsageRate, nil
@@ -95,13 +110,13 @@ func getClusterUsageRateHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 	}
 
-	resouce_usage_rate, err := getClusterUsageRate(clientset, mc)
+	resouceUsageRate, err := getClusterUsageRate(clientset, mc)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"cpu":    resouce_usage_rate.CPU,
-		"memory": resouce_usage_rate.Memory,
+		"cpu": resouceUsageRate.CPU,
+		// "memory": resouceUsageRate.Memory,
 	})
 }
