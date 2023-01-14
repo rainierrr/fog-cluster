@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: mg-app-daemonset
+spec:
+  selector:
+    matchLabels:
+      app: mg-app
+  template:
+    metadata:
+      labels:
+        app: mg-app
+    spec:
+      serviceAccountName: mg-app-sa
+      containers:
+      - name: mg-app
+        image: public.ecr.aws/f9w6d5a2/mg-app
+        ports:
+        - containerPort: 3000

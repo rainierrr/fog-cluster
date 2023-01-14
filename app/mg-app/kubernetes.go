@@ -2,121 +2,115 @@ package main
 
 import (
 	"context"
-	"errors"
-	"fmt"
+	"encoding/json"
+	"io"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
 )
+
+var MG_APP_PORT = "30002"
 
 type ClusterUsageRate struct {
 	CPU    float64
 	Memory float64
 }
+type NodeUsageRateResponse struct {
+	CpuUsageRate []float64 `json:"cpu_usage_rate"`
+}
 
-func getClusterUsageRate(clientset *kubernetes.Clientset, mc *metrics.Clientset) (*ClusterUsageRate, error) {
-	nodeMetricses, err := mc.MetricsV1beta1().NodeMetricses().List(context.TODO(), metav1.ListOptions{})
+func getNodeUsageRate(nodeIP string) (*NodeUsageRateResponse, error) {
+	url := "http://" + nodeIP + ":" + MG_APP_PORT + "/cpu_usage_rate"
+	resp, err := http.Get(url)
+
 	if err != nil {
 		return nil, err
 	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var nodeUsageRateResponse NodeUsageRateResponse
+
+	if err = json.Unmarshal(body, &nodeUsageRateResponse); err != nil {
+		return nil, err
+	}
+
+	return &nodeUsageRateResponse, nil
+}
+
+func getClusterUsageRate(clientset *kubernetes.Clientset) (float64, error) {
 	node, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return 0.0, err
 	}
 
-	if len(nodeMetricses.Items) != len(node.Items) {
-		return nil, errors.New("nodeMetricses.Items and node.Items are not equal")
-	}
-
-	clusterCpuAllocatable := float64(0)
-	clusterMemAllocatable := float64(0)
-	clusterCpuUsed := float64(0)
-	clusterMemUsed := float64(0)
-
-	if len(nodeMetricses.Items) == 0 {
-		return nil, errors.New("nodeMetricses.Items is empty")
-	}
-
-	for i := 0; i < len(nodeMetricses.Items); i++ {
+	var cpuList []float64
+	for i := 0; i < len(node.Items); i++ {
 		// master nodeは除外
 		masterFlag := node.Items[i].Labels["node-role.kubernetes.io/control-plane"]
 		if masterFlag == "true" {
 			continue
 		}
-		cpuUsage := float64(nodeMetricses.Items[i].Usage.Cpu().MilliValue())
-		memUsage := float64(nodeMetricses.Items[i].Usage.Memory().MilliValue())
-		cpuAllocatable := float64(node.Items[i].Status.Allocatable.Cpu().MilliValue())
-		memAllocatable := float64(node.Items[i].Status.Allocatable.Memory().MilliValue())
+		// NodeのIPアドレスを取得
+		nodeIP := node.Items[i].Status.Addresses[0].Address
+		// NodeのCPU使用率を取得
+		response, _ := getNodeUsageRate(nodeIP)
 
-		clusterCpuAllocatable += cpuAllocatable
-		clusterMemAllocatable += memAllocatable
-		clusterCpuUsed += cpuUsage
-		clusterMemUsed += memUsage
-
-		//デバック用
-		fmt.Printf("Node name: %s\n", node.Items[i].Name)
-		fmt.Printf("CPU rate: %f\n", cpuUsage/cpuAllocatable)
-		fmt.Printf("Memory rate: %f\n", memUsage/memAllocatable)
-		fmt.Printf("cpuUsage: %d\n", nodeMetricses.Items[i].Usage.Cpu().MilliValue())
-		memUsage2 := node.Items[i].Status.Capacity.Memory().MilliValue()
-		fmt.Printf("memUsage: %d\n", memUsage2)
-		fmt.Println("--------------------------------------------------")
+		if err != nil {
+			return 0.0, err
+		}
+		// CPU使用率をリストに追加
+		cpuList = append(cpuList, response.CpuUsageRate...)
 	}
 
-	clusterUsageRate := ClusterUsageRate{
-		CPU:    clusterCpuUsed / clusterCpuAllocatable,
-		Memory: clusterMemUsed / clusterMemAllocatable,
+	// CPU使用率の平均を計算
+	sum := 0.0
+	for _, value := range cpuList {
+		sum += value
 	}
-
-	return &clusterUsageRate, nil
+	cpuAverage := float64(sum) / float64(len(cpuList))
+	return cpuAverage, nil
 }
 
-func setupK8sClient() (*kubernetes.Clientset, *metrics.Clientset, error) {
+func setupK8sClient() (*kubernetes.Clientset, error) {
 	var config *rest.Config
 	var err error
-	if os.Getenv("ENV") == "local" {
-		kubeconfig := "./k3s.yaml"
-		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
-	} else {
-		config, err = rest.InClusterConfig()
-	}
-
+	kubeconfig := "./k3s.yaml"
+	config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
-		return nil, nil, err
-	}
-
-	mc, err := metrics.NewForConfig(config)
-	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	return clientset, mc, nil
+	return clientset, nil
 }
 
 func getClusterUsageRateHandler(ctx *gin.Context) {
-	clientset, mc, err := setupK8sClient()
+	clientset, err := setupK8sClient()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
-	resouceUsageRate, err := getClusterUsageRate(clientset, mc)
+	clusterCpuUsageRate, err := getClusterUsageRate(clientset)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"cpu": resouceUsageRate.CPU,
-		// "memory": resouceUsageRate.Memory,
+		"cpu": clusterCpuUsageRate,
 	})
 }
