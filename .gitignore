@@ -13,3 +13,4 @@ app/mg-app/client-go
 
 # python
 __pycache__
+venv
