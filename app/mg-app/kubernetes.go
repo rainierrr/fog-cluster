@@ -77,6 +77,14 @@ func getClusterUsageRate(clientset *kubernetes.Clientset, mc *metrics.Clientset)
 	return &clusterUsageRate, nil
 }
 
+// fucn getNodeList(clientset *kubernetes.Clientset) (*v1.NodeList, error) {
+// 	nodeList, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return nodeList, nil
+// }
+
 func setupK8sClient() (*kubernetes.Clientset, *metrics.Clientset, error) {
 	var config *rest.Config
 	var err error
@@ -117,6 +125,5 @@ func getClusterUsageRateHandler(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"cpu": resouceUsageRate.CPU,
-		// "memory": resouceUsageRate.Memory,
 	})
 }
