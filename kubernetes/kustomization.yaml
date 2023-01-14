@@ -7,7 +7,7 @@ resources:
 # - super-app/deployment.yaml
 
 # mg-app
-- mg-app/node-port.yaml
+- mg-app/daemon-set.yaml
 - mg-app/deployment.yaml
 - mg-app/service-account.yaml
 - mg-app/role.yaml
