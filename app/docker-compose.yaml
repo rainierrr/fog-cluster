@@ -34,10 +34,21 @@ services:
       - "3001:3000"
     volumes:
       - ./mg-app:/go/src
-      - $HOME/.kube/k3s-cluster-a.yaml:/go/src/k3s.yaml
-      #- $HOME/.kube//.kube/k3s-cluster-b.yaml:/go/src/k3s.yaml
+      #- $HOME/.kube/k3s-cluster-a.yaml:/go/src/k3s.yaml
+      - $HOME/.kube/k3s-cluster-b.yaml:/go/src/k3s.yaml
+      - ./cpu.csv:/go/src/cpu.csv
     environment:
       - ENV=local
+    depends_on:
+      - mg-app-sub
+  mg-app-sub:
+    container_name: mg-app-sub
+    build:
+      context: ./mg-app-sub
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./mg-app-sub:/go/src/
+      - ./cpu.csv:/go/src/cpu.csv
   fog-app:
     container_name: fog-app
     build:

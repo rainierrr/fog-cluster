@@ -16,6 +16,7 @@ import (
 )
 
 var MG_APP_PORT = "30002"
+var MG_INTERNAL_PORT = "3000"
 
 type ClusterUsageRate struct {
 	CPU    float64
@@ -25,8 +26,17 @@ type NodeUsageRateResponse struct {
 	CpuUsageRate []float64 `json:"cpu_usage_rate"`
 }
 
-func getNodeUsageRate(nodeIP string) (*NodeUsageRateResponse, error) {
-	url := "http://" + nodeIP + ":" + MG_APP_PORT + "/cpu_usage_rate"
+func Contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func getNodeUsageRate(podIP string) (*NodeUsageRateResponse, error) {
+	url := "http://" + podIP + ":" + MG_INTERNAL_PORT + "/cpu_usage_rate"
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -51,27 +61,39 @@ func getNodeUsageRate(nodeIP string) (*NodeUsageRateResponse, error) {
 }
 
 func getClusterUsageRate(clientset *kubernetes.Clientset) (float64, error) {
-	node, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	var cpuList []float64
+	var masterNodeNameList []string
+	// デーモンセットのPodを取得
+	nodes, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{
+		LabelSelector: "node-role.kubernetes.io/master=true",
+	})
+
+	for _, node := range nodes.Items {
+		masterNodeNameList = append(masterNodeNameList, node.Name)
+	}
+	if err != nil {
+		return 0.0, err
+	}
+	pods, err := clientset.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{
+		LabelSelector: "app=mg-app",
+	})
 	if err != nil {
 		return 0.0, err
 	}
 
-	var cpuList []float64
-	for i := 0; i < len(node.Items); i++ {
-		// master nodeは除外
-		masterFlag := node.Items[i].Labels["node-role.kubernetes.io/control-plane"]
-		if masterFlag == "true" {
+	for _, pod := range pods.Items {
+		// master nodeに配置されたPodは除外
+		if Contains(masterNodeNameList, pod.Spec.NodeName) {
 			continue
 		}
-		// NodeのIPアドレスを取得
-		nodeIP := node.Items[i].Status.Addresses[0].Address
-		// NodeのCPU使用率を取得
-		response, _ := getNodeUsageRate(nodeIP)
+		podIP := pod.Status.PodIP
 
+		// PodのCPU使用率を取得
+		response, err := getNodeUsageRate(podIP)
 		if err != nil {
 			return 0.0, err
 		}
-		// CPU使用率をリストに追加
+
 		cpuList = append(cpuList, response.CpuUsageRate...)
 	}
 

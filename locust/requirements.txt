@@ -1,3 +1,4 @@
 locust
 httpx
 ping3
+locust_plugins
