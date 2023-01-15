@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   master:
@@ -7,21 +7,22 @@ services:
      - "8089:8089"
     volumes:
       - ./src:/src
-    command: -f /src/locustfile.py --master --timescale
+    # command: -f /src/locustfile.py --master
+    command: -f /src/locustfile.py --master --timescale --grafana-url=http://192.168.11.1:3030/ --pghost=postgres --pgport=5432 --pgpassword=password --pguser=postgres
   worker:
     build: .
     volumes:
       - ./src:/src
-    command: -f /src/locustfile.py --worker --master-host master --timescale
+    # command: -f /src/locustfile.py --worker --master-host master
+    command: -f /src/locustfile.py --worker --master-host master --timescale --grafana-url=http://192.168.11.1:3030/ --pghost=postgres --pgport=5432 --pgpassword=password --pguser=postgres
+
   postgres:
       image: cyberw/locust-timescale:4
-      networks:
-        - timenet
       expose:
         - 5432
       ports:
         # remove the 127.0.0.1 to expose postgres to other machines (including load gen workers outside this machine)
-        - 127.0.0.1:5432:5432
+        - 5432:5432
       environment:
         # change the password if you intend to expose postgres to other machines
         - POSTGRES_PASSWORD=password
@@ -38,14 +39,9 @@ services:
       - GF_SECURITY_ALLOW_EMBEDDING=true
       - GF_LOG_LEVEL=warn # reduce log spamming. Remove this if you need to debug grafana.
     ports:
-      - 127.0.0.1:3000:3000
-    networks:
-      - timenet
+      - 3030:3000
     volumes:
       - grafana_data:/var/lib/grafana
-
-networks:
-  timenet: null
 
 volumes:
   postgres_data: null

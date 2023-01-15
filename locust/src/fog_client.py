@@ -8,7 +8,7 @@ MG_NODE_B_IP = '54.255.41.147'
 SUPER_APP_PORT = 3000
 MG_APP_PORT = 30002
 FOG_APP_PORT = 30003
-CPU_THRESHOLD = 0.8
+CPU_THRESHOLD = 70
 
 
 def get_request(url):
@@ -55,6 +55,19 @@ def setup():
     return mg_node_list
 
 
+def setup_stub():
+    node_a = {
+        "name": "cluster-a",
+        "ip": MG_NODE_A_IP
+    }
+    node_b = {
+        "name": "cluster-b",
+        "ip": MG_NODE_B_IP
+    }
+    cluster_list = [node_a, node_b]
+    return cluster_list
+
+
 def select_node(mg_node_list):
     min_rtt = min([mg_node_dict['rtt']
                   for mg_node_dict in mg_node_list])
@@ -75,7 +88,6 @@ def find_node(mg_node_list):
         cluster_metrics = get_cluster_metrics(mg_node_dict['ip'])
 
         mg_node_dict['cpu'] = cluster_metrics['cpu']
-        print(cluster_metrics['cpu'])
         mg_node_dict['rtt'] = ping3.ping(mg_node_dict['ip'])
 
         if cluster_metrics['cpu'] > CPU_THRESHOLD:
@@ -84,6 +96,8 @@ def find_node(mg_node_list):
             low_cpu_node_list.append(mg_node_dict)
 
     # CPUが閾値を超えていないノードがあれば、そのノードを選択
+    print(f"low cpu node list: {low_cpu_node_list}")
+    print(f"hight cpu node list: {hight_cpu_node_list}")
     if len(low_cpu_node_list) > 0:
         return select_node(low_cpu_node_list)
 
@@ -99,11 +113,12 @@ def test(mg_node_list):
 
 
 def main():
-    mg_node_list = setup()
-    test(mg_node_list)
-    # selected_node = find_node(mg_node_list)
-    # print(f'selected node name: {selected_node["name"]}')
-    # print(f'ip: {selected_node["ip"]}')
+    # mg_node_list = setup()
+    mg_node_list = setup_stub()
+    star_time = time.time()
+    selected_node = find_node(mg_node_list)
+    print(f'selected node name: {selected_node["name"]}\n')
+    print(f'ip: {selected_node["ip"]}')
 
 
 if __name__ == '__main__':
