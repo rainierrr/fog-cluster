@@ -44,5 +44,5 @@ func getCPUUsageRateHandler(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"cpu_usage_rate": cpuList, "message": "OK"})
+	ctx.JSON(http.StatusOK, gin.H{"cpu_usage_rate": cpuList})
 }
