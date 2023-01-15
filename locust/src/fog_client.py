@@ -1,5 +1,6 @@
 import httpx
 import ping3
+import time
 
 SUPER_NODE_IP = '52.199.79.207'
 MG_NODE_A_IP = '3.113.76.40'
@@ -69,6 +70,7 @@ def find_node(mg_node_list):
         cluster_metrics = get_cluster_metrics(mg_node_dict['ip'])
 
         mg_node_dict['cpu'] = cluster_metrics['cpu']
+        print(cluster_metrics['cpu'])
         mg_node_dict['rtt'] = ping3.ping(mg_node_dict['ip'])
 
         if cluster_metrics['cpu'] > CPU_THRESHOLD:
@@ -83,11 +85,20 @@ def find_node(mg_node_list):
     return select_node(hight_cpu_node_list)
 
 
+def test(mg_node_list):
+    print(mg_node_list[1]['name'])
+    while True:
+        cluster_metrics = get_cluster_metrics(mg_node_list[1]['ip'])
+        print(cluster_metrics['cpu'])
+        time.sleep(1)
+
+
 def main():
     mg_node_list = setup()
-    selected_node = find_node(mg_node_list)
-    print(f'selected node name: {selected_node["name"]}')
-    print(f'ip: {selected_node["ip"]}')
+    test(mg_node_list)
+    # selected_node = find_node(mg_node_list)
+    # print(f'selected node name: {selected_node["name"]}')
+    # print(f'ip: {selected_node["ip"]}')
 
 
 if __name__ == '__main__':

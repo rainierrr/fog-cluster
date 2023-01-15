@@ -1,13 +1,15 @@
 from locust import HttpUser, task, constant_throughput
 import fog_client
 import time
+import locust_plugins
+
 TIMEOUT = 10
 post_data = {"temperature": 20, "humidity": 0.5,
              "pressure": 1000, "location": "Tokyo"}
 
 
 class QuickstartUser(HttpUser):
-    #wait_time = constant_throughput(10)
+    # wait_time = constant_throughput(10)
 
     def on_start(self):
         self.mg_node_list = fog_client.setup()
