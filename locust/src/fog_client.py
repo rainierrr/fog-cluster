@@ -57,8 +57,13 @@ def setup():
 def select_node(mg_node_list):
     min_rtt = min([mg_node_dict['rtt']
                   for mg_node_dict in mg_node_list])
-    selected_node = [
-        mg_node_dict for mg_node_dict in mg_node_list if mg_node_dict['rtt'] == min_rtt][0]
+    selected_node = {}
+
+    for mg_node_dict in mg_node_list:
+        if mg_node_dict['rtt'] == min_rtt:
+            selected_node = mg_node_dict
+            break
+
     return selected_node
 
 
