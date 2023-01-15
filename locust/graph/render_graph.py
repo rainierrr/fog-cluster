@@ -13,7 +13,7 @@ cluster_b_rtt_y = []
 
 SLEEP_TIME = 0.25  # グラフを更新する秒数
 FONT_SIZE = 10  # フォントサイズ
-X_MAX = 30  # x軸の最大値
+X_MAX = 50  # x軸の最大値
 count = 0
 # figure()でグラフを表示する領域をつくり，figというオブジェクトにする．
 fig = plt.figure()
@@ -39,9 +39,9 @@ while True:
         cluster_metrics = fog_client.get_cluster_metrics(mg_node_dict['ip'])
         if mg_node_dict['name'] == 'mg-node-a':
             cluster_a_cpu_y.append(cluster_metrics['cpu'])
-            cluster_a_rtt_y.append(ping3.ping(mg_node_dict['ip']))
+            cluster_a_rtt_y.append(ping3.ping(mg_node_dict['ip']) * 1000)
         else:
-            cluster_b_cpu_y.append(cluster_metrics['cpu'] * 100)
+            cluster_b_cpu_y.append(cluster_metrics['cpu'])
             cluster_b_rtt_y.append(ping3.ping(mg_node_dict['ip']) * 1000)
 
     x.append(count)  # 秒数をx軸に追加
@@ -51,15 +51,18 @@ while True:
     # Plot
     x_length = len(x)
 
+    # 表示するx軸の範囲を設定
     start_index = 0 if x_length < X_MAX else x_length - X_MAX
+    cpu_ax.set_xlim(start_index, x_length)
+    rtt_ax.set_xlim(start_index, x_length)
 
-    cpu_ax.plot(x[start_index:], cluster_a_cpu_y[start_index:],
+    cpu_ax.plot(x, cluster_a_cpu_y,
                 color=cluster_a_color, label=cluster_a_label)
-    cpu_ax.plot(x[start_index:], cluster_b_cpu_y[start_index:],
-                color=cluster_b_color, label=cluster_b_label)
-    rtt_ax.plot(x[start_index:], cluster_a_rtt_y[start_index:],
+    cpu_ax.plot(x, cluster_b_cpu_y, color=cluster_b_color,
+                label=cluster_b_label)
+    rtt_ax.plot(x, cluster_a_rtt_y,
                 color=cluster_a_color, label=cluster_a_label)
-    rtt_ax.plot(x[start_index:], cluster_b_rtt_y[start_index:],
+    rtt_ax.plot(x, cluster_b_rtt_y,
                 color=cluster_b_color, label=cluster_b_label)
     fig.tight_layout()  # グラフのレイアウトを調整
     plt.draw()  # グラフを画面に表示開始
