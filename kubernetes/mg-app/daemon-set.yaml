@@ -17,3 +17,16 @@ spec:
         image: public.ecr.aws/f9w6d5a2/mg-app
         ports:
         - containerPort: 3000
+        volumeMounts:
+          - name: mg-app-sub
+            mountPath: /go/src/cpu.csv
+      - name: mg-app-sub
+        image: public.ecr.aws/f9w6d5a2/mg-app-sub
+        volumeMounts:
+          - name: mg-app-sub
+            mountPath: /go/src/cpu.csv
+      volumes:
+        - name: mg-app-sub
+          hostPath:
+            path: /home/ubuntu/cpu.csv
+            type: FileOrCreate

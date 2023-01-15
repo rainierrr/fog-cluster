@@ -1,0 +1,12 @@
+FROM golang:1.19-alpine
+
+WORKDIR /go/src
+
+COPY go.mod go.sum ./
+RUN apk upgrade --update
+
+RUN go mod download
+
+ADD . /go/src
+
+CMD ["go", "run", "main.go"]
