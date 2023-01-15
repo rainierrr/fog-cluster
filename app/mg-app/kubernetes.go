@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -80,6 +81,8 @@ func getClusterUsageRate(clientset *kubernetes.Clientset) (float64, error) {
 		sum += value
 	}
 	cpuAverage := float64(sum) / float64(len(cpuList))
+	log.Printf("CPU使用率の平均: %f\n", cpuAverage)
+	log.Println("CPUのリスト", cpuList)
 	return cpuAverage, nil
 }
 
