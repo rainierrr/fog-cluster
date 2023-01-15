@@ -15,11 +15,12 @@ services:
       - ./src:/src
     # command: -f /src/locustfile.py --worker --master-host master
     command: -f /src/locustfile.py --worker --master-host master --timescale --grafana-url=http://192.168.11.1:3030/ --pghost=postgres --pgport=5432 --pgpassword=password --pguser=postgres
+    depends_on:
+      - master
+      - postgres
 
   postgres:
       image: cyberw/locust-timescale:4
-      expose:
-        - 5432
       ports:
         # remove the 127.0.0.1 to expose postgres to other machines (including load gen workers outside this machine)
         - 5432:5432
