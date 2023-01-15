@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -85,10 +86,18 @@ func getClusterUsageRate(clientset *kubernetes.Clientset) (float64, error) {
 func setupK8sClient() (*kubernetes.Clientset, error) {
 	var config *rest.Config
 	var err error
-	kubeconfig := "./k3s.yaml"
-	config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		return nil, err
+
+	if os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
+		config, err = rest.InClusterConfig()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		kubeconfig := "./k3s.yaml"
+		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
