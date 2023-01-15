@@ -27,8 +27,11 @@ with open(csv_path) as f:
                 row[0], '%Y-%m-%d %H:%M:%S')
         if len(row) < 4:
             raise Exception('Invalid csv file')
+
         time = datetime.datetime.strptime(
             row[0], '%Y-%m-%d %H:%M:%S') - start_time
+        if time.seconds > 120:
+            break
         x.append(time.seconds)
         rps_y.append(float(row[1]))
         users_y.append(float(row[2]))
@@ -37,31 +40,28 @@ with open(csv_path) as f:
 
 
 fig = plt.figure()
-plt2 = plt.twinx()
-
+fig = fig.add_subplot(111)
 
 # ラベルを設定する
-plt.xlabel("秒数(s)", size=FONT_SIZE)
-plt2.set_ylabel("ユーザー数", size=FONT_SIZE)
-plt.ylabel("Req/s", size=FONT_SIZE)
+fig.set_xlabel("秒数(s)", size=FONT_SIZE)
+fig.set_ylabel("RPS", size=FONT_SIZE)
 
 # 目盛の設定
-# plt.yticks([i for i in range(0, 3000, 50)], size=FONT_SIZE)
 
 # 軸の範囲の設定
-print(rps_y)
-plt.xlim(0, max(x))
-plt.ylim(0, max(rps_y)*1.1)
+# plt.xlim(0, max(x))
+# plt.ylim(0, max(rps_y)*1.1)
 
 
 plt.grid(which="major", axis="x", color="black", alpha=0.8,
          linestyle="--", linewidth=1)
-# plt.grid(which="major", axis="y", color="black", alpha=0.8,
-#          linestyle="--", linewidth=1)
+plt.grid(which="major", axis="y", color="black", alpha=0.8,
+         linestyle="--", linewidth=1)
 
 # グラフを描画する
-plt.plot(x, rps_y, color='blue', label='Req/s')
-plt.plot(x, cluster_a_y, color='green', label='cluster a Req/s')
-plt.plot(x, cluster_b_y, color='red', label='cluster b Req/s')
-plt2.plot(x, users_y, color='orange', label='active users')
+fig.plot(x, rps_y, color='blue', label='合計 RPS')
+fig.plot(x, cluster_a_y, color='green', label='クラスターA RPS')
+fig.plot(x, cluster_b_y, color='red', label='クラスターB RPS')
+# ax2.plot(x, users_y, color='orange', label='ユーザー数')
+plt.legend(loc='upper left')
 plt.show()
