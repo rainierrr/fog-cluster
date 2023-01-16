@@ -49,8 +49,8 @@ fig.set_ylabel("RPS", size=FONT_SIZE)
 # 目盛の設定
 
 # 軸の範囲の設定
-# plt.xlim(0, max(x))
-# plt.ylim(0, max(rps_y)*1.1)
+plt.xlim(0, max(x))
+plt.ylim(0, max(rps_y)*1.1)
 
 
 plt.grid(which="major", axis="x", color="black", alpha=0.8,
@@ -59,9 +59,9 @@ plt.grid(which="major", axis="y", color="black", alpha=0.8,
          linestyle="--", linewidth=1)
 
 # グラフを描画する
-fig.plot(x, rps_y, color='blue', label='合計 RPS')
-fig.plot(x, cluster_a_y, color='green', label='クラスターA RPS')
-fig.plot(x, cluster_b_y, color='red', label='クラスターB RPS')
+fig.plot(x, rps_y, color='blue', label='クラスタ合計 RPS')
+fig.plot(x, cluster_a_y, color='green', label='クラスタA RPS')
+fig.plot(x, cluster_b_y, color='red', label='クラスタB RPS')
 # ax2.plot(x, users_y, color='orange', label='ユーザー数')
 plt.legend(loc='upper left')
 plt.show()

@@ -16,9 +16,6 @@ cluster_b_y = []
 with open(csv_path) as f:
     reader = csv.reader(f)
     for idx, row in enumerate(reader):
-        if idx == 0:
-            continue
-
         x.append(int(row[0]))
         cluster_a_y.append(float(row[1]))
         cluster_b_y.append(float(row[2]))
@@ -45,7 +42,7 @@ plt.grid(which="major", axis="y", color="black", alpha=0.8,
          linestyle="--", linewidth=1)
 
 # グラフを描画する
-plt.plot(x, cluster_a_y, color='green', label='クラスターA')
-plt.plot(x, cluster_b_y, color='red', label='クラスターB')
+plt.plot(x, cluster_a_y, color='green', label='クラスタA')
+plt.plot(x, cluster_b_y, color='red', label='クラスタB')
 plt.legend(loc='lower right')
 plt.show()
