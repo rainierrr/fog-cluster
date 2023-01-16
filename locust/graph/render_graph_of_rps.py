@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 import datetime
 
-FONT_SIZE = 10
+FONT_SIZE = 14
 csv_path = './rps.csv'
 
 rows = []
@@ -46,7 +46,8 @@ fig = fig.add_subplot(111)
 fig.set_xlabel("秒数(s)", size=FONT_SIZE)
 fig.set_ylabel("RPS", size=FONT_SIZE)
 
-# 目盛の設定
+# 目盛の文字サイズを設定する
+plt.tick_params(labelsize=12)
 
 # 軸の範囲の設定
 plt.xlim(0, max(x))
@@ -63,5 +64,7 @@ fig.plot(x, rps_y, color='blue', label='クラスタ合計 RPS')
 fig.plot(x, cluster_a_y, color='green', label='クラスタA RPS')
 fig.plot(x, cluster_b_y, color='red', label='クラスタB RPS')
 # ax2.plot(x, users_y, color='orange', label='ユーザー数')
-plt.legend(loc='upper left')
-plt.show()
+
+plt.legend(loc='upper left', fontsize=FONT_SIZE)
+# plt.show()
+plt.savefig('rps.png')
