@@ -31,6 +31,7 @@ with open(csv_path) as f:
         time = datetime.datetime.strptime(
             row[0], '%Y-%m-%d %H:%M:%S') - start_time
         if time.seconds > 120:
+            print(row[0])
             break
         x.append(time.seconds)
         rps_y.append(float(row[1]))
@@ -66,5 +67,6 @@ fig.plot(x, cluster_b_y, color='red', label='クラスタB RPS')
 # ax2.plot(x, users_y, color='orange', label='ユーザー数')
 
 plt.legend(loc='upper left', fontsize=FONT_SIZE)
+plt.tight_layout()
 # plt.show()
 plt.savefig('rps.png')
