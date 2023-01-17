@@ -2,8 +2,8 @@ from locust import HttpUser, task, constant_throughput
 import fog_client
 import time
 import random
+import locust_plugins
 
-# import locust_plugins
 TIMEOUT = 3
 post_data = {"temperature": 20, "humidity": 0.5,
              "pressure": 1000, "location": "Tokyo"}

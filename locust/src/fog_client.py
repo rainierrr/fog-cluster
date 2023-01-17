@@ -8,7 +8,7 @@ MG_NODE_B_IP = '54.255.41.147'
 SUPER_APP_PORT = 3000
 MG_APP_PORT = 30002
 FOG_APP_PORT = 30003
-CPU_THRESHOLD = 70
+CPU_THRESHOLD = 60
 
 
 def get_request(url):
@@ -96,8 +96,6 @@ def find_node(mg_node_list):
             low_cpu_node_list.append(mg_node_dict)
 
     # CPUが閾値を超えていないノードがあれば、そのノードを選択
-    print(f"low cpu node list: {low_cpu_node_list}")
-    print(f"hight cpu node list: {hight_cpu_node_list}")
     if len(low_cpu_node_list) > 0:
         return select_node(low_cpu_node_list)
 
