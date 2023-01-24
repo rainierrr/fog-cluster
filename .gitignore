@@ -10,6 +10,7 @@ app/scripts/*.json
 app/mg-app/k3s.yaml
 app/mg-app/client-go
 cpu.csv
+*.tar
 
 # python
 __pycache__
