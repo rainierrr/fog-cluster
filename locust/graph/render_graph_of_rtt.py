@@ -17,19 +17,27 @@ with open(csv_path) as f:
     reader = csv.reader(f)
     for idx, row in enumerate(reader):
         x.append(int(row[0]))
-        cluster_a_y.append(float(row[1]))
-        cluster_b_y.append(float(row[2]))
+        cluster_a_y.append(float(row[3]))
+        cluster_b_y.append(float(row[4]))
 
 fig = plt.figure()
 
 # ラベルを設定する
 plt.xlabel("秒数(s)", size=FONT_SIZE)
-plt.ylabel("CPU使用率(%)", size=FONT_SIZE)
+plt.ylabel("RTT(ms)", size=FONT_SIZE)
 
 
 # 軸の範囲の設定
 plt.xlim(0, max(x))
-plt.ylim(0, max(cluster_a_y)*1.1)
+plt.ylim(0, max(cluster_b_y)*1.1)
+
+# print(f'最小値: {min(cluster_a_y)}')
+# print(f'最大値: {max(cluster_a_y)}')
+# print(f'平均値: {np.mean(cluster_a_y)}')
+
+# print(f'最小値: {min(cluster_b_y)}')
+# print(f'最大値: {max(cluster_b_y)}')
+# print(f'平均値: {np.mean(cluster_b_y)}')
 
 
 # 目盛の文字サイズを設定する
@@ -48,4 +56,4 @@ plt.legend(loc='upper left', fontsize=FONT_SIZE)
 
 plt.tight_layout()
 # plt.show()
-plt.savefig('cpu_rate.png')
+plt.savefig('rtt.png')
